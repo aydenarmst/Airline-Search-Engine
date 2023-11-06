@@ -7,21 +7,16 @@ def execute_query(query, params=None):
         return result
 
 
-def find_active_US_airlines(driver):
-    # stopcount = int(input("Enter Stop #: "))
-    with driver.session() as session:
-        result = session.run(f"""MATCH (a:Airline)
-                                WHERE a.Active = 'Y' AND a.Country = 'United States'
-                                RETURN a""")
-        for record in result:
-            print(record[0]['Name'])
-        driver.close()
+def find_active_US_airlines():
+    f = open('reducedAirlines.csv', 'r')
+    for airline in f:
+        parameters = airline.strip().split(",")
+        if(parameters[6] == "United States" and parameters[7] == 'Y'):
+            print(parameters[1])
 
 def find_cities_reachable_within_d_hops(driver):
     current_city = input("Enter a city: ")
-    # current_city = "Dallas-Fort Worth"
     hop_count = int(input("Enter a hop count: "))
-    hop_count = 2
     if(hop_count < 1):
         print("Hop count must be greater than 1")
         return
@@ -40,7 +35,10 @@ def find_cities_reachable_within_d_hops(driver):
             for r in record:
                 cities.add(r)
         driver.close()
-    print(cities)
+    if(len(cities) == 0):
+        print("No hops found")
+    else:
+        print(cities)
 
 
 
@@ -52,8 +50,8 @@ uri = "neo4j+s://fc415e8e.databases.neo4j.io:7687"
 username = "neo4j"
 password = "suzSdYgWm9FkzztWHZXIExxv6kR9WoDzZeIVq8DgfOE"
 driver = GraphDatabase.driver(uri, auth=(username, password))
-# find_active_US_airlines(driver)
-find_cities_reachable_within_d_hops(driver)
+find_active_US_airlines()
+# find_cities_reachable_within_d_hops(driver)
 
 # with driver.session() as session:
 #     result = session.run("MATCH(n:Airline) RETURN n")
