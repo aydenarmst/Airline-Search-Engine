@@ -41,16 +41,47 @@ def find_cities_reachable_within_d_hops(driver):
         print(cities)
 
 
-
-
-
+def find_airports_within_country(driver):
+    country = input("Enter a country: ")
+    with driver.session() as session:
+        result = session.run(f"""MATCH (a:`Source Airport`)
+                                WHERE a.Country = '{country}'
+                                RETURN a""")
+        for record in result:
+            print(record[0]['Name'])
+        driver.close()
 
 
 uri = "neo4j+s://fc415e8e.databases.neo4j.io:7687"
 username = "neo4j"
 password = "suzSdYgWm9FkzztWHZXIExxv6kR9WoDzZeIVq8DgfOE"
 driver = GraphDatabase.driver(uri, auth=(username, password))
-find_active_US_airlines()
+
+def menu():
+    while True:
+        print("1. Find active US airlines")
+        print("2. Find cities reachable within d hops")
+        print("3. Find airports within a country")
+        print("4. Find trip between cities")
+        print("5. Exit")
+        choice = int(input("Enter your choice: "))
+        
+        if choice == 1:
+            find_active_US_airlines(driver)
+        elif choice == 2:
+            find_cities_reachable_within_d_hops(driver)
+        elif choice == 3:
+            find_airports_within_country(driver)
+        elif choice == 4:
+            find_trip_between_cities(driver)
+        elif choice == 5:
+            break
+        else:
+            print("Invalid choice")
+
+if __name__ == "__main__":
+    menu()
+
 # find_cities_reachable_within_d_hops(driver)
 
 # with driver.session() as session:
