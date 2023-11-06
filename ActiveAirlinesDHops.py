@@ -62,8 +62,7 @@ def menu():
         print("1. Find active US airlines")
         print("2. Find cities reachable within d hops")
         print("3. Find airports within a country")
-        print("4. Find trip between cities")
-        print("5. Exit")
+        print("4. Exit")
         choice = int(input("Enter your choice: "))
         
         if choice == 1:
@@ -73,8 +72,6 @@ def menu():
         elif choice == 3:
             find_airports_within_country(driver)
         elif choice == 4:
-            find_trip_between_cities(driver)
-        elif choice == 5:
             break
         else:
             print("Invalid choice")
