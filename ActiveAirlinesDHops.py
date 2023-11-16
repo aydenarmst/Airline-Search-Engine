@@ -51,6 +51,9 @@ def find_airports_within_country(driver):
             print(record[0]['Name'])
         driver.close()
 
+# Define a trip as a sequence of connected route. Find a trip that connects two cities X and Y (reachability) 
+
+
 
 uri = "neo4j+s://fc415e8e.databases.neo4j.io:7687"
 username = "neo4j"
