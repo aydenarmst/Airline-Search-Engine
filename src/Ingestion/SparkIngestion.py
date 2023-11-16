@@ -1,15 +1,10 @@
 from pyspark.sql import SparkSession
 from Ingestion.SparkSchema import SparkSchema
 from Ingestion.DataConfig import DataConfig
+import time
 
-
-def load_data():
-    # Init spark session
-    spark = SparkSession \
-            .builder \
-            .appName("Airline Data Processing") \
-            .getOrCreate()
-
+def load_data(spark):
+    start_time = time.time()
     # read the csv files into dataframes
     airports_df = spark.read.csv(
         DataConfig.get_path("airports"),
@@ -31,5 +26,7 @@ def load_data():
         mode="DROPMALFORMED",
         schema=SparkSchema.route_schema
     )
+    end_time = time.time()
+    print(f"Spark data ingestion took: {end_time - start_time} seconds")
     return airports_df, airlines_df, routes_df
 

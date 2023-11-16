@@ -6,18 +6,21 @@ class DataConfig:
 
     BASE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
+    RAW_DATA_PATH = os.path.join(BASE_DIRECTORY, "../../DataSets/Raw")
+    REDUCED_DATA_PATH = os.path.join(BASE_DIRECTORY, "../../DataSets/Reduced")
+
     PATHS = {
         "airports": {
-            True: os.path.join(BASE_DIRECTORY, "../../Reduced_Data", "reducedAirports.csv"),
-            False: os.path.join(BASE_DIRECTORY, "../../Raw_Data", "airports.csv")
+            True: os.path.join(REDUCED_DATA_PATH, "reducedAirports.csv"),
+            False: os.path.join(RAW_DATA_PATH, "airports.csv")
         },
         "airlines": {
-            True: os.path.join(BASE_DIRECTORY, "../../Reduced_Data", "reducedAirlines.csv"),
-            False: os.path.join(BASE_DIRECTORY, "../../Raw_Data", "airlines.csv")
+            True: os.path.join(REDUCED_DATA_PATH, "reducedAirlines.csv"),
+            False: os.path.join(RAW_DATA_PATH, "airlines.csv")
         },
         "routes": {
-            True: os.path.join(BASE_DIRECTORY, "../../Reduced_Data", "reducedRoutes.csv"),
-            False: os.path.join(BASE_DIRECTORY, "../../Raw_Data", "routes.csv")
+            True: os.path.join(REDUCED_DATA_PATH, "reducedRoutes.csv"),
+            False: os.path.join(RAW_DATA_PATH, "routes.csv")
         }
     }
 
