@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 from Ingestion.SparkSchema import SparkSchema
 from Ingestion.DataConfig import DataConfig
+from pyspark.sql.functions import col, when, count
 import time
 
 def load_data(spark):
@@ -26,6 +27,7 @@ def load_data(spark):
         mode="DROPMALFORMED",
         schema=SparkSchema.route_schema
     )
+    
     end_time = time.time()
     print(f"Spark data ingestion took: {end_time - start_time} seconds")
     return airports_df, airlines_df, routes_df
