@@ -1,5 +1,3 @@
-# Write the dataframes to a neo4j database
-# # Wait 60 seconds before connecting using these details, or login to https://console.neo4j.io to validate the Aura Instance is available
 # NEO4J_URI=neo4j+s://cdc70305.databases.neo4j.io
 # NEO4J_USERNAME=neo4j
 # NEO4J_PASSWORD=2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI
@@ -34,7 +32,7 @@ def write_to_auraDB(airports_df, airlines_df, routes_df):
         .option("labels", "Airport")
         .option("node.keys", "Airport ID")
         .save())
-    
+     
     # route nodes
     (routes_df.write.format("org.neo4j.spark.DataSource")
         .mode("Overwrite")
@@ -46,11 +44,13 @@ def write_to_auraDB(airports_df, airlines_df, routes_df):
         .option("node.keys", "RouteID")
         .save())
     
+    # Relationship for Source airport
     relationship_query = """
                         MATCH (route:Route), (airport:Airport)
                         WHERE route.`Source airport ID`   = airport.`Airport ID`
                         MERGE (route)-[:DEPARTS_FROM]->(airport)
                         """
+                        
     (routes_df.write.format("org.neo4j.spark.DataSource")
         .mode("Overwrite")
         .option("batch.size", 200) # needed to avoid dbms memory issues
@@ -61,7 +61,7 @@ def write_to_auraDB(airports_df, airlines_df, routes_df):
         .option("query", relationship_query)
         .save())
     
-    # Relationship between route and airline
+    # Relationship for Destination airport
     relationship_query = """
                         MATCH (route:Route), (airport:Airport)
                         WHERE route.`Destination airport ID` = airport.`Airport ID`
