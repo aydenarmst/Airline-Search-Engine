@@ -38,7 +38,7 @@ def main():
         choice = int(input("Enter your choice: "))
         
         if choice == 1:
-            find_airports_within_country(driver)
+            find_airports_within_country(airport)
         elif choice == 2:
             country_most_airports(airport)
         elif choice == 7:
