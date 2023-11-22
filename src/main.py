@@ -1,20 +1,32 @@
-from algos.Spark_Find_Airports_X_Country import find_airports_within_country
+from algos.Find_Airports_X_Country import find_airports_within_country
 from Ingestion.SparkIngestion import load_data
-from Connector.writeDF import write_to_auraDB
+from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
+from neo4j import GraphDatabase
 
 
 def main():
+    # Neo4j credentials
+    new_uri = "neo4j+s://cdc70305.databases.neo4j.io:7687"
+    new_password = "2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI"
+    username = "neo4j"
+    
+    # sets the jar from maven repo for neo4j-connector-apache-spark
     spark = (SparkSession.builder 
         .appName("Airline Data Processing") 
         .config("spark.jars.packages", "org.neo4j:neo4j-connector-apache-spark_2.12:5.2.0_for_spark_3") 
         .getOrCreate())
     
     # First load the data into spark dataframes for processing
-    airport, airlines, routes = load_data(spark)
+    use_reduced_data = True
+    airport, airlines, routes = load_data(spark, use_reduced_data)
     
+
     # Write the dataframes to AuraDB
-    write_to_auraDB(airport, airlines, routes)
+    write_to_Neo4j(airport, airlines, routes)
+    
+    # Initialize the driver to connect to Neo4j AuraDB
+    driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
 
         
     choice = 0
@@ -24,7 +36,7 @@ def main():
         choice = int(input("Enter your choice: "))
         
         if choice == 1:
-            find_airports_within_country(airport, airlines, routes)
+            find_airports_within_country(driver)
         elif choice == 7:
             break
         else:

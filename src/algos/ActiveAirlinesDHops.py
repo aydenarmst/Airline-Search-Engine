@@ -38,33 +38,40 @@ def find_cities_reachable_within_d_hops(driver):
     if(len(cities) == 0):
         print("No hops found")
     else:
-        print(cities)
+        print(len(cities), "cities found")
 
 
-def find_airports_within_country(driver):
-    country = input("Enter a country: ")
-    with driver.session() as session:
-        result = session.run(f"""MATCH (a:`Source Airport`)
-                                WHERE a.Country = '{country}'
-                                RETURN a""")
-        for record in result:
-            print(record[0]['Name'])
-        driver.close()
+# def find_cities_reachable_within_d_hops_new(driver):
+#     current_city = input("Enter a city: ")
+#     hop_count = int(input("Enter a hop count: "))
+#     if(hop_count < 1):
+#         print("Hop count must be greater than 1")
+#         return
+    
+#     query = f"""
+#         MATCH path = (start:Airport {{City: '{current_city}'}})-[:ROUTE*1..{hop_count}]->(end:Airport)
+#         WHERE NOT end.City = '{current_city}'
+#         RETURN DISTINCT end.City AS DestinationCity, LENGTH(path) AS Hops
+#     """
 
-# Define a trip as a sequence of connected route. Find a trip that connects two cities X and Y (reachability) 
 
-
-
-uri = "neo4j+s://fc415e8e.databases.neo4j.io:7687"
+                              
 username = "neo4j"
-password = "suzSdYgWm9FkzztWHZXIExxv6kR9WoDzZeIVq8DgfOE"
-driver = GraphDatabase.driver(uri, auth=(username, password))
+
+old_uri = "neo4j+s://fc415e8e.databases.neo4j.io:7687"
+old_pass = "suzSdYgWm9FkzztWHZXIExxv6kR9WoDzZeIVq8DgfOE"
+
+
+new_uri = "neo4j+s://cdc70305.databases.neo4j.io:7687"
+new_password = "2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI"
+
+
+driver = GraphDatabase.driver(old_uri, auth=(username, old_pass))
 
 def menu():
     while True:
         print("1. Find active US airlines")
         print("2. Find cities reachable within d hops")
-        print("3. Find airports within a country")
         print("4. Exit")
         choice = int(input("Enter your choice: "))
         
@@ -72,8 +79,6 @@ def menu():
             find_active_US_airlines(driver)
         elif choice == 2:
             find_cities_reachable_within_d_hops(driver)
-        elif choice == 3:
-            find_airports_within_country(driver)
         elif choice == 4:
             break
         else:

@@ -2,8 +2,6 @@ import os
 
 # Config class for data ingestion either raw or reduced for performance testing
 class DataConfig:
-    USE_REDUCED_DATA = True
-
     BASE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
     RAW_DATA_PATH = os.path.join(BASE_DIRECTORY, "../../DataSets/Raw")
@@ -25,5 +23,5 @@ class DataConfig:
     }
 
     @classmethod
-    def get_path(cls, name):
-        return cls.PATHS[name][cls.USE_REDUCED_DATA]
+    def get_path(cls, name, use_reduced_data):
+        return cls.PATHS[name][use_reduced_data]
