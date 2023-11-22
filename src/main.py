@@ -22,8 +22,8 @@ def main():
     airport, airlines, routes = load_data(spark, use_reduced_data)
     
 
-    # Write the dataframes to AuraDB
-    write_to_Neo4j(airport, airlines, routes)
+    # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
+    # write_to_Neo4j(airport, airlines, routes)
     
     # Initialize the driver to connect to Neo4j AuraDB
     driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
