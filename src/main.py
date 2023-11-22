@@ -1,5 +1,6 @@
 from algos.Find_Airports_X_Country import find_airports_within_country
 from algos.Spark_MostAirports import country_most_airports
+from algos.Spark_Gabe import find_active_airlines_x_country, find_all_cities_reachable_within_d_hops
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
@@ -34,6 +35,8 @@ def main():
     while choice != 7:
         print("1. Find Airports within a country")
         print("2. Find country with most airports")
+        print("3. Find Active Airlines within a country")
+        print("4. Find all cities reachable within d hops")
         print("7. Exit")
         choice = int(input("Enter your choice: "))
         
@@ -41,6 +44,10 @@ def main():
             find_airports_within_country(airport)
         elif choice == 2:
             country_most_airports(airport)
+        elif choice == 3:
+            find_active_airlines_x_country(airport, airlines, routes)
+        elif choice == 4:
+            find_all_cities_reachable_within_d_hops(airport,airlines,routes)
         elif choice == 7:
             break
         else:
