@@ -1,0 +1,32 @@
+html
+{
+	background-color: white;
+}
+
+#pageContent
+{
+	height:90%;
+	border: 5px solid rgb(140, 139, 139);
+	/* display: flex; */
+	background-color: aliceblue;
+}
+
+#dropdownDiv
+{
+	width:100%;
+	height:10%;
+	display:flex;
+	justify-content: center;
+
+}
+#dropdownMenu
+{
+	width:15%;
+}
+
+#pageTitle
+{
+	height:10%;
+	text-align: center;
+	font-size: 4.5vw;
+}
