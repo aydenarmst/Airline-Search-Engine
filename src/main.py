@@ -2,6 +2,7 @@ from pyspark.sql.functions import lower
 from algos.Find_Airports_X_Country import find_airports_within_country
 from algos.Spark_MostAirports import country_most_airports
 from algos.Spark_Gabe import find_active_airlines_x_country, find_all_cities_reachable_within_d_hops
+from algos.Spark_Queries import findAirline
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
@@ -28,7 +29,7 @@ spark = (SparkSession.builder
 use_reduced_data = True
 airport, airlines, routes = load_data(spark, use_reduced_data)
 
-# result = find_airports_within_country(airport,"United States")
+# result = findAirline(airlines,{"Country": "United States",'IATA': 'A2'})
 # print(result)
 
 # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
@@ -36,7 +37,7 @@ airport, airlines, routes = load_data(spark, use_reduced_data)
 
 # Initialize the driver to connect to Neo4j AuraDB
 # driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
-
+# exit(1)
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
@@ -61,8 +62,9 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_data_post(self, data):
         result = {}
-        if(data["function"] == "Handle Airports In Country"):
-            result = find_airports_within_country(airports_df=airport, country=data["country"])
+        print(data['conditions'])
+        if(data["function"] == "findAirline"):
+            result = findAirline(airlines_df=airlines, conditions=json.loads(data["conditions"]))
         return result
 
 PORT = 8080
@@ -70,12 +72,13 @@ PORT = 8080
 web_dir = "."
 os.chdir(web_dir)
 
-# Create the server with the custom handler
+
 with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
     print(f"Serving at port {PORT}")
 
     # Start the server
     httpd.serve_forever()
+    
 
 
 
