@@ -286,7 +286,7 @@ function handlefindAirports()
 	postData({"function" : "findAirports", "conditions" : JSON.stringify(inputInfo)}, displayData);
 
 }
-function handlefindAirports()
+function handlefindRoutes()
 {
 	
     var inputInfo = getRouteFormData(0);
