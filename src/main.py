@@ -64,7 +64,11 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         result = {}
         print(data['conditions'])
         if(data["function"] == "findAirline"):
-            result = findAirline(airlines_df=airlines, conditions=json.loads(data["conditions"]))
+            result = findAirline(df=airlines, conditions=json.loads(data["conditions"]))
+        elif(data["function"] == "findAirports"):
+            result = findAirline(df=airport, conditions=json.loads(data["conditions"]))
+        elif(data["function"] == "findRoutes"):
+            result = findAirline(df=routes, conditions=json.loads(data["conditions"]))
         return result
 
 PORT = 8080
