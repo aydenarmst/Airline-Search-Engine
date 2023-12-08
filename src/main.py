@@ -1,8 +1,8 @@
 from pyspark.sql.functions import lower
 from algos.Find_Airports_X_Country import find_airports_within_country
 from algos.Spark_MostAirports import country_most_airports
-from algos.Spark_Gabe import find_active_airlines_x_country, find_all_cities_reachable_within_d_hops
-from algos.Spark_Queries import queryDataframe
+from algos.Spark_Gabe import find_active_airlines_x_country
+from algos.Spark_Queries import queryDataframe,findDHopsCities
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
@@ -29,7 +29,7 @@ spark = (SparkSession.builder
 use_reduced_data = True
 airport, airlines, routes = load_data(spark, use_reduced_data)
 
-# result = queryDataframe(airport,{"Country": "United States", "Name" : "Napaskiak Airport"})
+# result = findDHopsCities(airport,routes,"Dallas-Fort Worth",2)
 # print(result)
 
 # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
@@ -62,13 +62,15 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_data_post(self, data):
         result = {}
-        print(data['conditions'])
         if(data["function"] == "findAirline"):
             result = queryDataframe(df=airlines, conditions=json.loads(data["conditions"]))
         elif(data["function"] == "findAirports"):
             result = queryDataframe(df=airport, conditions=json.loads(data["conditions"]))
         elif(data["function"] == "findRoutes"):
             result = queryDataframe(df=routes, conditions=json.loads(data["conditions"]))
+        elif(data["function"] == "findDHopsCities"):
+            data = json.loads(data["data"])
+            result = findDHopsCities(airports_df=airport, routes_df=routes, city=data["City"], hop_count=int(data["Hop Count"]))
         return result
 
 PORT = 8080
