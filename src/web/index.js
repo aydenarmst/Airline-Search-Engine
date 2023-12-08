@@ -12,137 +12,126 @@ function removeEmptyStringAttributes(obj) {
     }
   }
 
+  function setErrorMessage(text)
+  {
+    displayDiv.innerHTML = `
+    <div id="errorHolder">
+        <h1>${text}</h1>
+    </div>
+    `
+  }
 
-function generateAirlineHTML(id)
-{
-  return `<div id="specificAirline"><label for="airlineId${id}">Airline ID:</label>
-  <input type="text" id="airlineId${id}" name="airlineId" required>
 
-  <label for="airlineName${id}">Name:</label>
-  <input type="text" id="airlineName${id}" name="airlineName" required>
-
-  <label for="airlineAlias${id}">Alias:</label>
-  <input type="text" id="airlineAlias${id}" name="airlineAlias">
-
-  <label for="iataCode${id}">IATA Code:</label>
-  <input type="text" id="iataCode${id}" name="iataCode">
-
-  <label for="icaoCode${id}">ICAO Code:</label>
-  <input type="text" id="icaoCode${id}" name="icaoCode">
-
-  <label for="callsign${id}">Callsign:</label>
-  <input type="text" id="callsign${id}" name="callsign">
-
-  <label for="country${id}">Country:</label>
-  <input type="text" id="country${id}" name="country" required>
-
-  <label for="active${id}">Active (Y/N):</label>
-  <input type="text" id="active${id}" name="active" maxlength="1" required pattern="[YNyn]"></div>`;
-}
-
-function generateAirportHTML(id) {
-return `<div id="specificAirline">
-    <label for="airportId${id}">Airport ID:</label>
-    <input type="text" id="airportId${id}" name="airportId" required>
-
-    <label for="airportName${id}">Name:</label>
-    <input type="text" id="airportName${id}" name="airportName" required>
-
-    <label for="city${id}">City:</label>
-    <input type="text" id="city${id}" name="city" required>
-
-    <label for="country${id}">Country:</label>
-    <input type="text" id="country${id}" name="country" required>
-
-    <label for="iataCode${id}">IATA Code:</label>
-    <input type="text" id="iataCode${id}" name="iataCode">
-
-    <label for="icaoCode${id}">ICAO Code:</label>
-    <input type="text" id="icaoCode${id}" name="icaoCode">
-
-    <label for="latitude${id}">Latitude:</label>
-    <input type="text" id="latitude${id}" name="latitude" required>
-
-    <label for="longitude${id}">Longitude:</label>
-    <input type="text" id="longitude${id}" name="longitude" required>
-
-    <label for="altitude${id}">Altitude:</label>
-    <input type="text" id="altitude${id}" name="altitude" required>
-
-    <label for="timezone${id}">Timezone:</label>
-    <input type="text" id="timezone${id}" name="timezone" required>
-
-    <label for="dst${id}">DST:</label>
-    <input type="text" id="dst${id}" name="dst" maxlength="1" required pattern="[EASOZNUeasoznu]">
-
-    <label for="tzDatabase${id}">Tz Database Timezone:</label>
-    <input type="text" id="tzDatabase${id}" name="tzDatabase" required>
-
-    <label for="type${id}">Type:</label>
-    <input type="text" id="type${id}" name="type" required>
-
-    <label for="source${id}">Source:</label>
-    <input type="text" id="source${id}" name="source" required>
-</div>`;
-}
-
-function generateAirportHTML(id) {
+  function generateAirlineHTML(id) {
     return `<div id="specificAirline">
-        <label for="airportId${id}">Airport ID:</label>
-        <input type="text" id="airportId${id}" name="airportId" required>
-    
-        <label for="airportName${id}">Name:</label>
-        <input type="text" id="airportName${id}" name="airportName" required>
-    
-        <label for="city${id}">City:</label>
-        <input type="text" id="city${id}" name="city" required>
-    
-        <label for="country${id}">Country:</label>
-        <input type="text" id="country${id}" name="country" required>
-    
-        <label for="iataCode${id}">IATA Code:</label>
-        <input type="text" id="iataCode${id}" name="iataCode">
-    
-        <label for="icaoCode${id}">ICAO Code:</label>
-        <input type="text" id="icaoCode${id}" name="icaoCode">
-    
-        <label for="latitude${id}">Latitude:</label>
-        <input type="text" id="latitude${id}" name="latitude" required>
-    
-        <label for="longitude${id}">Longitude:</label>
-        <input type="text" id="longitude${id}" name="longitude" required>
-    
-        <label for="altitude${id}">Altitude:</label>
-        <input type="text" id="altitude${id}" name="altitude" required>
-    
-        <label for="timezone${id}">Timezone:</label>
-        <input type="text" id="timezone${id}" name="timezone" required>
-    
-        <label for="dst${id}">DST:</label>
-        <input type="text" id="dst${id}" name="dst" maxlength="1" required pattern="[EASOZNUeasoznu]">
-    
-        <label for="tzDatabase${id}">Tz Database Timezone:</label>
-        <input type="text" id="tzDatabase${id}" name="tzDatabase" required>
-    
-        <label for="type${id}">Type:</label>
-        <input type="text" id="type${id}" name="type" required>
-    
-        <label for="source${id}">Source:</label>
-        <input type="text" id="source${id}" name="source" required>
+      <div class="inputHolder">
+        <label for="airlineId${id}">Airline ID</label>
+        <input type="text" id="airlineId${id}" name="airlineId" class="inputField" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="airlineName${id}">Name</label>
+        <input type="text" id="airlineName${id}" class="inputField" name="airlineName" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="airlineAlias${id}">Alias</label>
+        <input type="text" id="airlineAlias${id}" class="inputField" name="airlineAlias">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="iataCode${id}">IATA Code</label>
+        <input type="text" id="iataCode${id}" class="inputField" name="iataCode">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="icaoCode${id}">ICAO Code</label>
+        <input type="text" id="icaoCode${id}" class="inputField" name="icaoCode">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="callsign${id}">Callsign</label>
+        <input type="text" id="callsign${id}" class="inputField" name="callsign">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="country${id}">Country</label>
+        <input type="text" id="country${id}" class="inputField" name="country" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="active${id}">Active (Y/N)</label>
+        <input type="text" id="active${id}" class="inputField" name="active" maxlength="1" required pattern="[YNyn]">
+      </div>
     </div>`;
-}
+  }
+  
+  
 
 
-function findDHopsCitiesHTML(id)
-{
+
+  function generateAirportHTML(id, extra = "") {
     return `<div id="specificAirline">
-        <label for="city${id}">City:</label>
-        <input type="text" id="city${id}" name="city" required>
+      <div class="inputHolder">
+        <label for="airportId${id}">Airport ID</label>
+        <input type="text" id="airportId${id}" class="inputField" name="airportId" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="airportName${id}">Name</label>
+        <input type="text" id="airportName${id}" class="inputField" name="airportName" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="city${id}">City</label>
+        <input type="text" id="city${id}" class="inputField" name="city" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="country${id}">Country</label>
+        <input type="text" id="country${id}" class="inputField" name="country" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="iataCode${id}">IATA Code</label>
+        <input type="text" id="iataCode${id}" class="inputField" name="iataCode">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="icaoCode${id}">ICAO Code</label>
+        <input type="text" id="icaoCode${id}" class="inputField" name="icaoCode">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="timezone${id}">Timezone</label>
+        <input type="text" id="timezone${id}" class="inputField" name="timezone" required>
+      </div>
+  
+      <div class="inputHolder">
+        <label for="dst${id}">DST</label>
+        <input type="text" id="dst${id}" class="inputField" name="dst" maxlength="1" required pattern="[EASOZNUeasoznu]">
+      </div>
+  
+      <div class="inputHolder">
+        <label for="tzDatabase${id}">Tz Database Timezone</label>
+        <input type="text" id="tzDatabase${id}" class="inputField" name="tzDatabase" required>
+      </div>
 
-        <label for="hopCount${id}">Hop Count:</label>
-        <input type="number" id="hopCount${id}" name="hopCount" required>
+      ${extra}
+
     </div>`;
-}
+  }
+  
+  
+
+
+  function findDHopsCitiesHTML(id) {
+    return generateAirportHTML(id, `<div class ="inputHolder"><label for="hopCount${id}">Hop Count</label>
+    <input type="number" id="hopCount${id}" class="inputField" name="hopCount" required></div>`);
+        
+  }
+  
+  
 
 
 function getAirportFormData(id) {
@@ -152,14 +141,10 @@ const city = document.getElementById(`city${id}`).value;
 const country = document.getElementById(`country${id}`).value;
 const iataCode = document.getElementById(`iataCode${id}`).value;
 const icaoCode = document.getElementById(`icaoCode${id}`).value;
-const latitude = document.getElementById(`latitude${id}`).value;
-const longitude = document.getElementById(`longitude${id}`).value;
-const altitude = document.getElementById(`altitude${id}`).value;
 const timezone = document.getElementById(`timezone${id}`).value;
 const dst = document.getElementById(`dst${id}`).value;
 const tzDatabase = document.getElementById(`tzDatabase${id}`).value;
-const type = document.getElementById(`type${id}`).value;
-const source = document.getElementById(`source${id}`).value;
+
 
 return {
     "Airport ID": airportId,
@@ -168,14 +153,9 @@ return {
     "Country": country,
     "IATA": iataCode,
     "ICAO": icaoCode,
-    "Latitude": latitude,
-    "Longitude": longitude,
-    "Altitude": altitude,
     "Timezone": timezone,
     "DST": dst,
     "Tz Database Timezone": tzDatabase,
-    "Type": type,
-    "Source": source
 };
 }
   
@@ -203,12 +183,10 @@ function getAirlineFormData(id) {
 }
 
 function findDHopsCitiesData(id) {
-    const city = document.getElementById(`city${id}`).value;
+    var data = getAirportFormData(id);
     const hopCount = document.getElementById(`hopCount${id}`).value;
-    return {
-        "City": city,
-        "Hop Count": hopCount
-    };
+    data["Hop Count"] = hopCount;
+    return data;
 }
 
 
@@ -216,31 +194,31 @@ function findDHopsCitiesData(id) {
 
 // function generateRouteHTML(id) {
 //     return `<div id="specificAirline">
-//       <label for="airline${id}">Airline:</label>
+//       <label for="airline${id}">Airline</label>
 //       <input type="text" id="airline${id}" name="airline" required>
   
-//       <label for="airlineId${id}">Airline ID:</label>
+//       <label for="airlineId${id}">Airline ID</label>
 //       <input type="text" id="airlineId${id}" name="airlineId" required>
   
-//       <label for="sourceAirport${id}">Source Airport:</label>
+//       <label for="sourceAirport${id}">Source Airport</label>
 //       <input type="text" id="sourceAirport${id}" name="sourceAirport" required>
   
-//       <label for="sourceAirportId${id}">Source Airport ID:</label>
+//       <label for="sourceAirportId${id}">Source Airport ID</label>
 //       <input type="text" id="sourceAirportId${id}" name="sourceAirportId" required>
   
-//       <label for="destinationAirport${id}">Destination Airport:</label>
+//       <label for="destinationAirport${id}">Destination Airport</label>
 //       <input type="text" id="destinationAirport${id}" name="destinationAirport" required>
   
-//       <label for="destinationAirportId${id}">Destination Airport ID:</label>
+//       <label for="destinationAirportId${id}">Destination Airport ID</label>
 //       <input type="text" id="destinationAirportId${id}" name="destinationAirportId" required>
   
-//       <label for="codeshare${id}">Codeshare (Y/N):</label>
+//       <label for="codeshare${id}">Codeshare (Y/N)</label>
 //       <input type="text" id="codeshare${id}" name="codeshare" maxlength="1" required pattern="[YNyn]">
   
-//       <label for="stops${id}">Stops:</label>
+//       <label for="stops${id}">Stops</label>
 //       <input type="text" id="stops${id}" name="stops" required>
   
-//       <label for="equipment${id}">Equipment:</label>
+//       <label for="equipment${id}">Equipment</label>
 //       <input type="text" id="equipment${id}" name="equipment" required>
 //     </div>`;
 // }
@@ -268,7 +246,22 @@ function findDHopsCitiesData(id) {
 //       "Equipment": equipment
 //     };
 //   }
+
   
+{/* <div class="inputHolder">
+<label for="latitude${id}">Latitude</label>
+<input type="text" id="latitude${id}" class="inputField" name="latitude" required>
+</div>
+
+<div class="inputHolder">
+<label for="longitude${id}">Longitude</label>
+<input type="text" id="longitude${id}" class="inputField" name="longitude" required>
+</div>
+
+<div class="inputHolder">
+<label for="altitude${id}">Altitude</label>
+<input type="text" id="altitude${id}" class="inputField" name="altitude" required>
+</div> */}
 
   
 function changeInputOptions() {
@@ -289,7 +282,7 @@ function changeInputOptions() {
             break;
         case "3":
             inputDiv.innerHTML = `
-                <label for="activeCountryInput">Country:</label>
+                <label for="activeCountryInput">Country</label>
                 <input type="text" id="countryInput" name="activeCountry">
             `;
             break;
@@ -386,7 +379,16 @@ function handleFindDHops()
 {
     var inputInfo = findDHopsCitiesData(0);
     removeEmptyStringAttributes(inputInfo);
-    postData({"function" : "findDHopsCities", "data" : JSON.stringify(inputInfo)}, displayDHops);
+    var hopCount;
+    if(!('Hop Count' in inputInfo))
+    {
+        setErrorMessage("No Hop Count");
+        return;
+        
+    }
+    hopCount = inputInfo["Hop Count"];
+    delete inputInfo["Hop Count"];
+    postData({"function" : "findDHopsCities", "conditions" : JSON.stringify(inputInfo), "Hop Count" : hopCount}, displayDHops);
 }
 
 function handleActiveAirlinesInCountry()

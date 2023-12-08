@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col,lower
 import json
 import time
 from pyspark.sql.functions import lit
@@ -7,11 +7,20 @@ def queryDataframe(df, conditions):
     result_df = df
 
     for key, value in conditions.items():
-        result_df = result_df.filter(col(key) == value)
+        result_df = result_df.filter(lower(col(key)) == value.lower())
 
     return result_df.toJSON().map(lambda j: json.loads(j)).collect()
 
-def findDHopsCities(airports_df, routes_df, city, hop_count):
+
+def filterDataframe(df, conditions):
+    result_df = df
+
+    for key, value in conditions.items():
+        result_df = result_df.filter(lower(col(key)) == value.lower())
+
+    return result_df
+
+def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
     # city = input("Enter the City name: ")
     # city = "Dallas-Fort Worth"
     # hop_count = int(input("Enter a hop count: "))
@@ -21,7 +30,8 @@ def findDHopsCities(airports_df, routes_df, city, hop_count):
         print("Invalid Hop Count")
         return
     start_time = time.time()
-    starting_airports = airports_df.filter(airports_df.City == city).select("Airport ID", "City")
+    # starting_airports = airports_df.filter(airports_df.City == city).select("Airport ID", "City")
+    starting_airports = starting_airports.select("Airport ID", "City")
     current_level = starting_airports.withColumn("Level", lit(0))
 
     visited_airports = current_level.select("Airport ID")

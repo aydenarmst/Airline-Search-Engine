@@ -2,7 +2,7 @@ from pyspark.sql.functions import lower
 from algos.Find_Airports_X_Country import find_airports_within_country
 from algos.Spark_MostAirports import country_most_airports
 from algos.Spark_Gabe import find_active_airlines_x_country
-from algos.Spark_Queries import queryDataframe,findDHopsCities
+from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
@@ -69,8 +69,8 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         elif(data["function"] == "findRoutes"):
             result = queryDataframe(df=routes, conditions=json.loads(data["conditions"]))
         elif(data["function"] == "findDHopsCities"):
-            data = json.loads(data["data"])
-            result = findDHopsCities(airports_df=airport, routes_df=routes, city=data["City"], hop_count=int(data["Hop Count"]))
+            conditions = json.loads(data["conditions"])
+            result = findDHopsCities(airports_df=airport, routes_df=routes, hop_count=int(data["Hop Count"]), starting_airports=filterDataframe(airport, conditions))
         return result
 
 PORT = 8080
