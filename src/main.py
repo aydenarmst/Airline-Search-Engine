@@ -11,9 +11,9 @@ import json
 
 
 # Neo4j credentials
-# new_uri = "neo4j+s://cdc70305.databases.neo4j.io:7687"
-# new_password = "2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI"
-# username = "neo4j"
+new_uri = "neo4j+s://cdc70305.databases.neo4j.io:7687"
+new_password = "2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI"
+username = "neo4j"
 
 # sets the jar from maven repo for neo4j-connector-apache-spark
 spark = (SparkSession.builder 
@@ -29,10 +29,10 @@ airport, airlines, routes = load_data(spark, use_reduced_data)
 
 
 # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
-# write_to_Neo4j(airport, airlines, routes)
+write_to_Neo4j(airport, airlines, routes)
 
 # Initialize the driver to connect to Neo4j AuraDB
-# driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
+driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':

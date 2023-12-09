@@ -406,40 +406,49 @@ function displayData(data)
 
 
 
-function displayDHops(data, time)
-{
-	// displayDiv.innerHTML = "";
-    var newString;
-    if(data.length === 0 || JSON.stringify(data) === '{}')
-    {
-        newString = "<h1 style=\"text-align: center;\">No Results Found.</h1>";
-        displayDiv.innerHTML = newString;
-        return;
-    }
+function displayDHops(data, time) {
+  var newString;
+  var seenCities = new Set();
+  
+  if (data.length === 0 || JSON.stringify(data) === '{}') {
+      newString = "<h1 style=\"text-align: center;\">No Results Found.</h1>";
+      displayDiv.innerHTML = newString;
+      return;
+  }
+
   let previousLevel = 0;
   let i = 0;
-  var newString = `<h1 id = "queryResult" style = "padding-left: 10px;">${data.length} results found in ${queryTime} seconds </h1>`;
-  while(i < data.length)
-  {
-    newString += "<div id = \"nameGrid\" style=\"border: 1px solid black; padding: 10px;\">";
-    for(; i < data.length; ++i)
-    {
-          if(data[i]["Level"] == 0 && i != 0)
-          {
-            continue;
-          }
-          if(data[i]["Level"] != previousLevel)
-          {
-            previousLevel = data[i]["Level"];
-            break;
-          }
-          newString += `<p style="padding: 5px; background-color: rgb(152, 204, 250); border-radius: 5px;">${data[i]["City"]} : ${data[i]["Level"]}</p>`
-          
-    }
-    newString += "</div>";
-  }
+  newString = `<h1 id="queryResult" style="padding-left: 10px;">${data.length} results found in ${queryTime} seconds </h1>`;
   
-    displayDiv.innerHTML = newString;
+  while (i < data.length) {
+      newString += "<div id=\"nameGrid\" style=\"border: 1px solid black; padding: 10px;\">";
+      
+      for (; i < data.length; ++i) {
+          if (data[i]["Level"] == 0 && i != 0) {
+              continue;
+          }
+
+          if (data[i]["Level"] != previousLevel) {
+              previousLevel = data[i]["Level"];
+              break;
+          }
+
+          const city = data[i]["City"];
+
+          // Skip if the city has already been seen
+          if (seenCities.has(city)) {
+              continue;
+          }
+
+          seenCities.add(city);
+
+          newString += `<p style="padding: 5px; background-color: rgb(152, 204, 250); border-radius: 5px;">${city} : ${data[i]["Level"]}</p>`;
+      }
+
+      newString += "</div>";
+  }
+
+  displayDiv.innerHTML = newString;
 }
 
 function displayDataTrip(data,time) {
