@@ -1,8 +1,55 @@
 var dropdown = document.getElementById("dropdownMenu");
 var inputDiv = document.getElementById("inputDiv");
 var displayDiv = document.getElementById("displayDiv");
-
+var lastData = null;
+var lastPopup = null;
 const serverUrl = "http://localhost:8080/data";
+
+
+function handleButtonClick(index, event) {
+  console.log(`Handling ${index}`);
+  if (!(lastData && lastData[index])) {
+    console.log(`Not valid ${lastData} ${lastData[index]}`);
+    return;
+  }
+  if(lastPopup)
+  {
+    lastPopup.remove();
+  }
+
+  const properties = Object.keys(lastData[index]);
+
+  const popupHTML = `<div class="popup-header">
+                        <span class="popup-close" onclick="closePopup()">X</span>
+                    </div>
+                    ${properties.map(property => `<p><strong>${property}:</strong> ${lastData[index][property]}</p>`).join('')}`;
+
+  const popupDiv = document.createElement('div');
+  popupDiv.innerHTML = popupHTML;
+  popupDiv.classList.add('popup');
+
+  popupDiv.style.left = `${event.pageX}px`;
+  popupDiv.style.top = `${event.pageY}px`;
+  popupDiv.style.zIndex = '1';
+  popupDiv.style.position = 'absolute';
+
+  document.body.appendChild(popupDiv);
+
+  event.stopPropagation();
+
+  document.addEventListener('click', closePopup);
+  lastPopup = popupDiv;
+}
+
+function closePopup() {
+  const popupDiv = document.querySelector('.popup');
+  if (popupDiv) {
+    document.body.removeChild(popupDiv);
+    document.removeEventListener('click', closePopup);
+    lastPopup = null;
+  }
+}
+
 
 function removeEmptyStringAttributes(obj) {
     for (const key in obj) {
@@ -23,7 +70,7 @@ function removeEmptyStringAttributes(obj) {
 
 
   function generateAirlineHTML(id) {
-    return `<div id="specificAirline">
+    return `<div id="nameGrid">
       <div class="inputHolder">
         <label for="airlineId${id}">Airline ID</label>
         <input type="text" id="airlineId${id}" name="airlineId" class="inputField" required>
@@ -71,7 +118,7 @@ function removeEmptyStringAttributes(obj) {
 
 
   function generateAirportHTML(id, extra = "") {
-    return `<div id="specificAirline">
+    return `<div id="nameGrid">
       <div class="inputHolder">
         <label for="airportId${id}">Airport ID</label>
         <input type="text" id="airportId${id}" class="inputField" name="airportId" required>
@@ -193,7 +240,7 @@ function findDHopsCitiesData(id) {
 
 
 // function generateRouteHTML(id) {
-//     return `<div id="specificAirline">
+//     return `<div id="nameGrid">
 //       <label for="airline${id}">Airline</label>
 //       <input type="text" id="airline${id}" name="airline" required>
   
@@ -266,13 +313,13 @@ function findDHopsCitiesData(id) {
   
 function changeInputOptions() {
     var selectedOption = dropdown.value;
+    displayDiv.innerHTML = "";
 
     inputDiv.innerHTML = "";
 
     switch (selectedOption) {
         case "0":
             inputDiv.innerHTML = generateAirlineHTML(0);
-            console.log(generateAirlineHTML(0));
             break;
         case "1":
             inputDiv.innerHTML = generateAirportHTML(0);
@@ -293,7 +340,6 @@ function changeInputOptions() {
 
 function handleSubmit() {
     var selectedOption = dropdown.value;
-
     switch (selectedOption) {
         case "0":
             handleFindAirline();
@@ -326,7 +372,7 @@ function displayData(data)
     var newString = "<div id = \"nameGrid\">";
 	for(let i = 0; i < data.length; ++i)
     {
-        newString += `<p>${data[i]["Name"]}</p>`
+        newString += `<button class="nameButton" onclick="handleButtonClick(${i},event)">${data[i]["Name"]}</button>`
     }
     newString += "</div>";
     displayDiv.innerHTML = newString;
@@ -408,7 +454,8 @@ function postData(data, callback)
 	})
 	.then(response => response.json())
 	.then(data => {
-        console.log(data);
+    console.log(data);
+    lastData = data;
 		callback(data);
 	})
 	.catch((error) => {

@@ -51,9 +51,6 @@ def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
     
     intersecting_rows = current_level.select("Airport ID", "Level").join(airports_df, "Airport ID", "left_outer")
     # intersecting_rows = visited_airports.join(current_level, "Airport ID", "inner").select("City","Level")
-    # intersecting_rows.show(5)
-    # airports_df.show(5)
-    # visited_airports.show(5)
     end_time = time.time()
     print(f"Spark find airlines in {hop_count} hops in: {end_time - start_time} seconds\n")
 

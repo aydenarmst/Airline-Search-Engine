@@ -25,18 +25,12 @@ html
 	font-size: 4.5vw;
 }
 
+
 #nameGrid
-{
-	background-color: pink;
-	display: grid;
-	grid-template-columns: repeat(8, 1fr); 
-	/* gap: 10%; */
-}
-#specificAirline
 {
 	/* background-color: pink; */
 	display: grid;
-	grid-template-columns: repeat(4, 1fr); 
+	grid-template-columns: repeat(4, minmax(0, 1fr)); 
 	grid-column-gap: 20px;
 	grid-row-gap: 10px;
 	/* text-align: center; */
@@ -88,4 +82,23 @@ html
 {
 	text-align: center;
 	color: red;
+}
+
+.popup {
+	position: fixed;
+	/* top: 50%; */
+	/* left: 50%; */
+	/* transform: translate(-50%, -50%); */
+	padding: 20px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+	z-index: 999;
+  }
+
+.nameButton
+{
+	background-color: rgb(174, 214, 249);
+	border: none;
+	border-radius: 0.2vw;
 }
