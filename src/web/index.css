@@ -102,3 +102,20 @@ html
 	border: none;
 	border-radius: 0.2vw;
 }
+
+.route-details-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.route-details-table th, .route-details-table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+}
+
+.journey-path {
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+

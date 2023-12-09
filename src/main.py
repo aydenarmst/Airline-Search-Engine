@@ -1,20 +1,16 @@
-from pyspark.sql.functions import lower
-from algos.Find_Airports_X_Country import find_airports_within_country
-from algos.Spark_MostAirports import country_most_airports
-from algos.Spark_Gabe import find_active_airlines_x_country
+
 from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe, findTrip
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
 from neo4j import GraphDatabase
-
-import http.server
 import socketserver
+import http.server
 import os
 import json
 
 
-#     # Neo4j credentials
+# Neo4j credentials
 # new_uri = "neo4j+s://cdc70305.databases.neo4j.io:7687"
 # new_password = "2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI"
 # username = "neo4j"
@@ -22,15 +18,14 @@ import json
 # sets the jar from maven repo for neo4j-connector-apache-spark
 spark = (SparkSession.builder 
     .appName("Airline Data Processing") 
-    .config("spark.jars.packages", "org.neo4j:neo4j-connector-apache-spark_2.12:5.2.0_for_spark_3") 
+    .config("spark.jars.packages", "org.neo4j:neo4j-connector-apache-spark_2.12:5.2.0_for_spark_3")
+    .config("spark.executor.cores", "4") 
     .getOrCreate())
 
 # First load the data into spark dataframes for processing
 use_reduced_data = True
 airport, airlines, routes = load_data(spark, use_reduced_data)
 
-# result = findDHopsCities(airport,routes,"Dallas-Fort Worth",2)
-# print(result)
 
 # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
 # write_to_Neo4j(airport, airlines, routes)
@@ -74,7 +69,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         elif(data["function"] == "findTrip"):
             source_airport = data.get("Source Airport")
             dest_airport = data.get("Destination Airport")
-            print(f"Finding trip from {source_airport} to {dest_airport}")
             result = findTrip(routes, source_airport=source_airport, destination_airport=dest_airport )
         return result
 
@@ -89,33 +83,5 @@ with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
 
     # Start the server
     httpd.serve_forever()
-    
-
-
-
-    
-# choice = 0
-# while choice != 7:
-#     print("1. Find Airports within a country")
-#     print("2. Find country with most airports")
-#     print("3. Find Active Airlines within a country")
-#     print("4. Find all cities reachable within d hops")
-#     print("7. Exit")
-#     choice = int(input("Enter your choice: "))
-    
-#     if choice == 1:
-#         find_airports_within_country(airport)
-#     elif choice == 2:
-#         country_most_airports(airport)
-#     elif choice == 3:
-#         find_active_airlines_x_country(airport, airlines, routes)
-#     elif choice == 4:
-#         findTrip(routes)
-#     elif choice == 7:
-#         break
-#     else:
-#         print("Invalid choice")
-
-# spark.stop()
 
 

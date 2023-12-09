@@ -396,6 +396,9 @@ function displayData(data)
     displayDiv.innerHTML = newString;
 }
 
+
+
+
 function displayDHops(data)
 {
 	// displayDiv.innerHTML = "";
@@ -411,6 +414,41 @@ function displayDHops(data)
     }
     newString += "</div>";
     displayDiv.innerHTML = newString;
+}
+
+function displayDataTrip(data) {
+  if (data.length === 0) {
+      displayDiv.innerHTML = "<h1>No Results Found.</h1>";
+      return;
+  }
+
+  let journeyPath = data.map((route, index) => 
+      index === 0 ? route["Source airport"] || 'Unknown' : route["Destination airport"] || 'Unknown'
+  ).join(" -> ");
+
+  let routeDetails = data.map(route => 
+      `<tr>
+          <td>${route["RouteID"] || 'N/A'}</td>
+          <td>${route["Airline"] || 'N/A'} (${route["Airline ID"] || 'N/A'})</td>
+          <td>${route["Source airport"] || 'N/A'}</td>
+          <td>${route["Destination airport"] || 'N/A'}</td>
+          <td>${route["Stops"] !== undefined ? route["Stops"] : 'N/A'}</td>
+          <td>${route["Equipment"] || 'N/A'}</td>
+          <td>${route["Codeshare"] || 'None'}</td>
+      </tr>`
+  ).join("");
+
+  let tableHeader = `<tr><th>Route ID</th><th>Airline</th><th>Source</th><th>Destination</th><th>Stops</th><th>Equipment</th><th>Codeshare</th></tr>`;
+
+  displayDiv.innerHTML = `
+      <div id='journeyGrid'>
+          <p class="journey-path">Journey Path: ${journeyPath}</p>
+          <table class="route-details-table">
+              ${tableHeader}
+              ${routeDetails}
+          </table>
+      </div>
+  `;
 }
 
 
@@ -471,7 +509,7 @@ function handleFindTrip(){
   }
   sourceAirport = inputInfo["Source Airport"]
   destinationAirport = inputInfo["Destination Airport"]
-  postData({"function" : "findTrip", "Source Airport" : sourceAirport, "Destination Airport" : destinationAirport})
+  postData({"function" : "findTrip", "Source Airport" : sourceAirport, "Destination Airport" : destinationAirport}, displayDataTrip)
 }
 
 

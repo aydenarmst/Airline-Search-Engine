@@ -21,17 +21,14 @@ def filterDataframe(df, conditions):
 
     return result_df
 
-def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
-    # city = input("Enter the City name: ")
-    # city = "Dallas-Fort Worth"
-    # hop_count = int(input("Enter a hop count: "))
-    # hop_count = 2
 
+
+def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
     if hop_count < 1:
         print("Invalid Hop Count")
         return
     start_time = time.time()
-    # starting_airports = airports_df.filter(airports_df.City == city).select("Airport ID", "City")
+
     starting_airports = starting_airports.select("Airport ID", "City")
     current_level = starting_airports.withColumn("Level", lit(0))
 
@@ -60,26 +57,20 @@ def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
 
 
 
-
 def findTrip(routes_df, source_airport, destination_airport):
-    # BFS dawg
+    # BFS
     visited = set()
     queue = Queue()
-    print("start")
     start_time = time.time()
-    source_airport = source_airport.strip().upper()
-    destination_airport = destination_airport.strip().upper()
-
     queue.put((source_airport, []))  # (airport, path_to_airport)
     while not queue.empty():
         current_airport, path = queue.get()
         
         if current_airport == destination_airport:
             json_path = [row.asDict() for row in path]
-
             end_time = time.time()
             print(f"Spark found routes in: {end_time - start_time} seconds\n")
-            return json.dumps(json_path)
+            return json_path
 
         if current_airport in visited:
             continue
@@ -91,3 +82,23 @@ def findTrip(routes_df, source_airport, destination_airport):
             if dest_airport not in visited:
                 new_path = path + [row]
                 queue.put((dest_airport, new_path))
+
+
+
+def country_most_airports(airports_df):
+    start_time = time.time()
+    airports_in_country = (airports_df.groupBy(airports_df.schema.names[3]).count()).orderBy(col("count").desc())
+    airports_in_country.limit(1).show()
+    end_time = time.time()
+    print(f"Spark algorithm took: {end_time - start_time} seconds\n")
+
+
+
+def find_airports_within_country(airports_df, country):
+    country = country.lower()
+    start_time = time.time()
+    airports_in_country = airports_df.filter(lower(airports_df["Country"]) == country)
+    end_time = time.time()
+    print(f"Airport count: {airports_in_country.count()}")
+    print(f"Spark find airports within country took: {end_time - start_time} seconds\n")
+    return airports_in_country.toJSON().map(lambda j: json.loads(j)).collect()
