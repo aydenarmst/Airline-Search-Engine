@@ -2,7 +2,7 @@ from pyspark.sql.functions import lower
 from algos.Find_Airports_X_Country import find_airports_within_country
 from algos.Spark_MostAirports import country_most_airports
 from algos.Spark_Gabe import find_active_airlines_x_country
-from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe
+from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe, findTrip
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
@@ -26,7 +26,7 @@ spark = (SparkSession.builder
     .getOrCreate())
 
 # First load the data into spark dataframes for processing
-use_reduced_data = False
+use_reduced_data = True
 airport, airlines, routes = load_data(spark, use_reduced_data)
 
 # result = findDHopsCities(airport,routes,"Dallas-Fort Worth",2)
@@ -41,7 +41,7 @@ airport, airlines, routes = load_data(spark, use_reduced_data)
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path = '/web/index.html'
+            self.path = 'src/web/index.html'
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
@@ -71,6 +71,11 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         elif(data["function"] == "findDHopsCities"):
             conditions = json.loads(data["conditions"])
             result = findDHopsCities(airports_df=airport, routes_df=routes, hop_count=int(data["Hop Count"]), starting_airports=filterDataframe(airport, conditions))
+        elif(data["function"] == "findTrip"):
+            source_airport = data.get("Source Airport")
+            dest_airport = data.get("Destination Airport")
+            print(f"Finding trip from {source_airport} to {dest_airport}")
+            result = findTrip(routes, source_airport=source_airport, destination_airport=dest_airport )
         return result
 
 PORT = 8080
@@ -105,7 +110,7 @@ with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
 #     elif choice == 3:
 #         find_active_airlines_x_country(airport, airlines, routes)
 #     elif choice == 4:
-#         find_all_cities_reachable_within_d_hops(airport,airlines,routes)
+#         findTrip(routes)
 #     elif choice == 7:
 #         break
 #     else:

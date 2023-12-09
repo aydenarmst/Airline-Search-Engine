@@ -2,6 +2,7 @@ from pyspark.sql.functions import col,lower
 import json
 import time
 from pyspark.sql.functions import lit
+from queue import Queue
 
 def queryDataframe(df, conditions):
     result_df = df
@@ -55,3 +56,38 @@ def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
     print(f"Spark find airlines in {hop_count} hops in: {end_time - start_time} seconds\n")
 
     return intersecting_rows.select("City", "Level").toJSON().map(lambda j: json.loads(j)).collect()
+
+
+
+
+
+def findTrip(routes_df, source_airport, destination_airport):
+    # BFS dawg
+    visited = set()
+    queue = Queue()
+    print("start")
+    start_time = time.time()
+    source_airport = source_airport.strip().upper()
+    destination_airport = destination_airport.strip().upper()
+
+    queue.put((source_airport, []))  # (airport, path_to_airport)
+    while not queue.empty():
+        current_airport, path = queue.get()
+        
+        if current_airport == destination_airport:
+            json_path = [row.asDict() for row in path]
+
+            end_time = time.time()
+            print(f"Spark found routes in: {end_time - start_time} seconds\n")
+            return json.dumps(json_path)
+
+        if current_airport in visited:
+            continue
+        visited.add(current_airport)
+
+        next_routes = routes_df.filter(col("Source airport") == current_airport)
+        for row in next_routes.collect():
+            dest_airport = row["Destination airport"]
+            if dest_airport not in visited:
+                new_path = path + [row]
+                queue.put((dest_airport, new_path))

@@ -169,6 +169,18 @@ function removeEmptyStringAttributes(obj) {
     </div>`;
   }
   
+  function findTripHTML(id){
+    return `<div id="nameGrid">
+    <div class="inputHolder">
+      <label for="sourceAirport${id}">Source Airport</label>
+      <input type="text" id="sourceAirport${id}" name="sourceAirport" class="inputField" required>
+    </div>
+    <div class="inputHolder">
+      <label for="destinationAirport${id}">Destination Airport</label>
+      <input type="text" id="destinationAirport${id}" name="destinationAirport" class="inputField" required>
+    </div>
+    </div>`;
+  }
   
 
 
@@ -205,7 +217,16 @@ return {
     "Tz Database Timezone": tzDatabase,
 };
 }
-  
+
+function getFindTripFormData(id){
+  const sourceAirport = document.getElementById(`sourceAirport${id}`).value;
+  const destinationAirport = document.getElementById(`destinationAirport${id}`).value;
+
+  return{
+    "Source Airport" : sourceAirport,
+    "Destination Airport" : destinationAirport,
+  };
+}
   
 
 function getAirlineFormData(id) {
@@ -328,15 +349,13 @@ function changeInputOptions() {
             inputDiv.innerHTML = findDHopsCitiesHTML(0);
             break;
         case "3":
-            inputDiv.innerHTML = `
-                <label for="activeCountryInput">Country</label>
-                <input type="text" id="countryInput" name="activeCountry">
-            `;
-            break;
+          inputDiv.innerHTML = findTripHTML(0);
+          break
         default:
             break;
     }
 }
+
 
 function handleSubmit() {
     var selectedOption = dropdown.value;
@@ -352,8 +371,7 @@ function handleSubmit() {
             handleFindDHops();
             break;
         case "3":
-            handleActiveAirlinesInCountry();
-            break;
+            handleFindTrip();
         default:
             break;
     }
@@ -437,10 +455,25 @@ function handleFindDHops()
     postData({"function" : "findDHopsCities", "conditions" : JSON.stringify(inputInfo), "Hop Count" : hopCount}, displayDHops);
 }
 
-function handleActiveAirlinesInCountry()
-{
-	var countryName = document.getElementById("countryInput");
+
+function handleFindTrip(){
+  var inputInfo = getFindTripFormData(0);
+  removeEmptyStringAttributes(inputInfo);
+  if(!('Destination Airport' in inputInfo))
+  {
+    setErrorMessage("No destination Airport");
+    return;
+  }
+  if(!('Source Airport' in inputInfo))
+  {
+    setErrorMessage("No source Airport");
+    return;
+  }
+  sourceAirport = inputInfo["Source Airport"]
+  destinationAirport = inputInfo["Destination Airport"]
+  postData({"function" : "findTrip", "Source Airport" : sourceAirport, "Destination Airport" : destinationAirport})
 }
+
 
 
 function postData(data, callback)
