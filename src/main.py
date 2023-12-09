@@ -1,5 +1,5 @@
 
-from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe, findTrip
+from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe, findTrip,find_trip,convertListToRoutes
 from Ingestion.SparkIngestion import load_data
 from Connector.writeDF import write_to_Neo4j
 from pyspark.sql import SparkSession
@@ -27,16 +27,16 @@ use_reduced_data = False
 airport, airlines, routes = load_data(spark, use_reduced_data)
 
 
+
 # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
 # write_to_Neo4j(airport, airlines, routes)
 
 # Initialize the driver to connect to Neo4j AuraDB
 # driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
-# exit(1)
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path = 'src/web/index.html'
+            self.path = 'web/index.html'
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
@@ -57,20 +57,27 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
 
     def handle_data_post(self, data):
         result = {}
+        time = 0
         if(data["function"] == "findAirline"):
-            result = queryDataframe(df=airlines, conditions=json.loads(data["conditions"]))
+            result, time = queryDataframe(df=airlines, conditions=json.loads(data["conditions"]))
         elif(data["function"] == "findAirports"):
-            result = queryDataframe(df=airport, conditions=json.loads(data["conditions"]))
-        elif(data["function"] == "findRoutes"):
-            result = queryDataframe(df=routes, conditions=json.loads(data["conditions"]))
+            result,time = queryDataframe(df=airport, conditions=json.loads(data["conditions"]))
+        # elif(data["function"] == "findRoutes"):
+        #     result = queryDataframe(df=routes, conditions=json.loads(data["conditions"]))
         elif(data["function"] == "findDHopsCities"):
             conditions = json.loads(data["conditions"])
-            result = findDHopsCities(airports_df=airport, routes_df=routes, hop_count=int(data["Hop Count"]), starting_airports=filterDataframe(airport, conditions))
+            result,time = findDHopsCities(airports_df=airport, routes_df=routes, hop_count=int(data["Hop Count"]), starting_airports=filterDataframe(airport, conditions))
         elif(data["function"] == "findTrip"):
             source_airport = data.get("Source Airport")
             dest_airport = data.get("Destination Airport")
-            result = findTrip(routes, source_airport=source_airport, destination_airport=dest_airport )
-        return result
+            # result = findTrip(routes, source_airport=source_airport, destination_airport=dest_airport )
+            result,time = find_trip(routes, source_airport=source_airport, destination_airport=dest_airport )
+            if result is None:
+                return {}
+            result.insert(0, source_airport)
+            result = convertListToRoutes(routes,result)
+        return {"result" : result, "time" : time}
+
 
 PORT = 8080
 

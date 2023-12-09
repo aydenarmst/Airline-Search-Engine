@@ -3,6 +3,7 @@ var inputDiv = document.getElementById("inputDiv");
 var displayDiv = document.getElementById("displayDiv");
 var lastData = null;
 var lastPopup = null;
+var queryTime = null;
 const serverUrl = "http://localhost:8080/data";
 
 
@@ -156,7 +157,7 @@ function removeEmptyStringAttributes(obj) {
   
       <div class="inputHolder">
         <label for="dst${id}">DST</label>
-        <input type="text" id="dst${id}" class="inputField" name="dst" maxlength="1" required pattern="[EASOZNUeasoznu]">
+        <input type="text" id="dst${id}" class="inputField" name="dst"  required pattern="[EASOZNUeasoznu]">
       </div>
   
       <div class="inputHolder">
@@ -214,7 +215,7 @@ return {
     "ICAO": icaoCode,
     "Timezone": timezone,
     "DST": dst,
-    "Tz Database Timezone": tzDatabase,
+    "Tz database time zone": tzDatabase,
 };
 }
 
@@ -381,47 +382,71 @@ function handleSubmit() {
 
 function displayData(data)
 {
+
 	// displayDiv.innerHTML = "";
     var newString;
-    if(data.length == 0)
-    {
-        newString = "<h1>No Results Found.</h1>";
-    }
-    var newString = "<div id = \"nameGrid\">";
+    console.log(data);
+  if(data.length === 0 || JSON.stringify(data) === '{}')
+  {
+      newString = "<h1 style=\"text-align: center;\">No Results Found.</h1>";
+      displayDiv.innerHTML = newString;
+      return;
+  }
+  var newString = `<h1 id = "queryResult" style = "padding-left: 10px;">${data.length} results found in ${queryTime} seconds </h1>`;
+
+  newString += "<div id = \"nameGrid\">";
 	for(let i = 0; i < data.length; ++i)
     {
         newString += `<button class="nameButton" onclick="handleButtonClick(${i},event)">${data[i]["Name"]}</button>`
     }
-    newString += "</div>";
+  newString += "</div>";
     displayDiv.innerHTML = newString;
 }
 
 
 
 
-function displayDHops(data)
+function displayDHops(data, time)
 {
 	// displayDiv.innerHTML = "";
     var newString;
-    if(data.length == 0)
+    if(data.length === 0 || JSON.stringify(data) === '{}')
     {
-        newString = "<h1>No Results Found.</h1>";
+        newString = "<h1 style=\"text-align: center;\">No Results Found.</h1>";
+        displayDiv.innerHTML = newString;
+        return;
     }
-    var newString = "<div id = \"nameGrid\">";
-	for(let i = 0; i < data.length; ++i)
+  let previousLevel = 0;
+  let i = 0;
+  var newString = `<h1 id = "queryResult" style = "padding-left: 10px;">${data.length} results found in ${queryTime} seconds </h1>`;
+  while(i < data.length)
+  {
+    newString += "<div id = \"nameGrid\" style=\"border: 1px solid black; padding: 10px;\">";
+    for(; i < data.length; ++i)
     {
-        newString += `<p>${data[i]["City"]} : ${data[i]["Level"]}</p>`
+          if(data[i]["Level"] == 0 && i != 0)
+          {
+            continue;
+          }
+          if(data[i]["Level"] != previousLevel)
+          {
+            previousLevel = data[i]["Level"];
+            break;
+          }
+          newString += `<p style="padding: 5px; background-color: rgb(152, 204, 250); border-radius: 5px;">${data[i]["City"]} : ${data[i]["Level"]}</p>`
+          
     }
     newString += "</div>";
+  }
+  
     displayDiv.innerHTML = newString;
 }
 
-function displayDataTrip(data) {
-  if (data.length === 0) {
+function displayDataTrip(data,time) {
+  if (data.length === 0 || JSON.stringify(data) === '{}') {
       displayDiv.innerHTML = "<h1>No Results Found.</h1>";
       return;
   }
-
   let journeyPath = data.map((route, index) => {
       if (index === 0) {
           return (route["Source airport"] || 'Unknown') + 
@@ -435,6 +460,7 @@ function displayDataTrip(data) {
   if (data.length === 1) {
       journeyPath += " -> " + (data[0]["Destination airport"] || 'Unknown');
   }
+  journeyPath = journeyPath.replace("->  ->", "->");
 
   let routeDetails = data.map(route => 
       `<tr>
@@ -451,8 +477,9 @@ function displayDataTrip(data) {
   let tableHeader = `<tr><th>Route ID</th><th>Airline</th><th>Source</th><th>Destination</th><th>Stops</th><th>Equipment</th><th>Codeshare</th></tr>`;
 
   displayDiv.innerHTML = `
+      <h1 id = "queryResult" style = "padding-left: 10px;">${data.length} results found in ${queryTime} seconds </h1>
       <div id='journeyGrid'>
-          <p class="journey-path">Journey Path: ${journeyPath}</p>
+          <p class="journey-path" style = "padding-left: 10px;">Journey Path: ${journeyPath}</p>
           <table class="route-details-table">
               ${tableHeader}
               ${routeDetails}
@@ -537,8 +564,19 @@ function postData(data, callback)
 	.then(response => response.json())
 	.then(data => {
     console.log(data);
-    lastData = data;
-		callback(data);
+    console.log(data.hasOwnProperty('result'));
+    if(data.hasOwnProperty('result'))
+    {
+      lastData = data['result'];
+      queryTime = Number(data['time'].toPrecision(4));
+      callback(data['result']);
+    }
+    else
+    {
+      lastData = data;
+      callback(data);
+    }
+
 	})
 	.catch((error) => {
 		console.error('Error:', error);

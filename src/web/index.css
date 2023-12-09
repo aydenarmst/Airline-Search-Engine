@@ -37,6 +37,7 @@ html
 	margin-top: 3vh;
 	margin-left: 1vw;
 	margin-right: 1vw;
+	margin-bottom: 20px;
 }
 #submitButton
 {
@@ -94,6 +95,8 @@ html
 	border: 1px solid #ccc;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 	z-index: 999;
+	
+
   }
 
 .nameButton
