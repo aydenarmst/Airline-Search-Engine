@@ -23,7 +23,7 @@ spark = (SparkSession.builder
     .getOrCreate())
 
 # First load the data into spark dataframes for processing
-use_reduced_data = True
+use_reduced_data = False
 airport, airlines, routes = load_data(spark, use_reduced_data)
 
 

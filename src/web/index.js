@@ -422,9 +422,19 @@ function displayDataTrip(data) {
       return;
   }
 
-  let journeyPath = data.map((route, index) => 
-      index === 0 ? route["Source airport"] || 'Unknown' : route["Destination airport"] || 'Unknown'
-  ).join(" -> ");
+  let journeyPath = data.map((route, index) => {
+      if (index === 0) {
+          return (route["Source airport"] || 'Unknown') + 
+                 (data.length > 1 ? " -> " : ""); // Add "->" only if there's more than one route
+      } else {
+          return route["Destination airport"] || 'Unknown';
+      }
+  }).join(" -> ");
+
+  // Include destination of the last route if there's only one route
+  if (data.length === 1) {
+      journeyPath += " -> " + (data[0]["Destination airport"] || 'Unknown');
+  }
 
   let routeDetails = data.map(route => 
       `<tr>
@@ -450,6 +460,7 @@ function displayDataTrip(data) {
       </div>
   `;
 }
+
 
 
 

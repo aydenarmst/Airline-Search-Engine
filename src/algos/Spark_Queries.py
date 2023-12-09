@@ -22,7 +22,6 @@ def filterDataframe(df, conditions):
     return result_df
 
 
-
 def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
     if hop_count < 1:
         print("Invalid Hop Count")
@@ -57,6 +56,7 @@ def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
 
 
 
+
 def findTrip(routes_df, source_airport, destination_airport):
     # BFS
     visited = set()
@@ -84,14 +84,12 @@ def findTrip(routes_df, source_airport, destination_airport):
                 queue.put((dest_airport, new_path))
 
 
-
 def country_most_airports(airports_df):
     start_time = time.time()
     airports_in_country = (airports_df.groupBy(airports_df.schema.names[3]).count()).orderBy(col("count").desc())
     airports_in_country.limit(1).show()
     end_time = time.time()
     print(f"Spark algorithm took: {end_time - start_time} seconds\n")
-
 
 
 def find_airports_within_country(airports_df, country):
