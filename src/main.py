@@ -3,7 +3,8 @@ from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe,
 from algos.Spark_Map import reduceWrapper
 
 from Ingestion.SparkIngestion import load_data
-from Connector.writeDF import write_to_Neo4j
+from Connector.WriteNeo4j import write_to_Neo4j
+from Connector.ReadNeo4j import read_from_Neo4j
 from pyspark.sql import SparkSession
 from neo4j import GraphDatabase
 import socketserver
@@ -25,14 +26,18 @@ spark = (SparkSession.builder
     .config("spark.executor.cores", "4") 
     .getOrCreate())
 
-# # First load the data into spark dataframes for processing
-use_reduced_data = True
-airport, airlines, routes = load_data(spark, use_reduced_data)
+# First load the data into spark dataframes for processing
+use_reduced_data = False
+# airport, airlines, routes = load_data(spark, use_reduced_data)
 
 
 
 # Write the dataframes to AuraDB, commented out bc only need to write when performance testing
 # write_to_Neo4j(airport, airlines, routes)
+
+# Read from neo4j into DFs
+airport, airlines, routes = read_from_Neo4j(spark)
+
 # Initialize the driver to connect to Neo4j AuraDB
 # driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
 class MyHandler(http.server.SimpleHTTPRequestHandler):
