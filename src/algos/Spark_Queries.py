@@ -28,66 +28,33 @@ def filterDataframe(df, conditions):
     return result_df
 
 
-def findDHopsCities(airports_df, routes_df, hop_count,starting_airports):
+def filterRDD(rdd, conditions):
+    for key, value in conditions.items():
+        rdd = rdd.filter(lambda x: x[key].lower() == value.lower())
+    rdd = rdd.map(lambda x : (x,1))
+    return rdd
+
+def findDHopsCities(airports_rdd, routes_rdd, hop_count, starting_airports):
     if hop_count < 1:
         print("Invalid Hop Count")
         return
     start_time = time.time()
 
-    starting_airports = starting_airports.select("Airport ID", "City")
-    current_level = starting_airports.withColumn("Level", lit(0))
-
-    visited_airports = current_level.select("Airport ID")
+    current_level = starting_airports.map(lambda row: (row[0], (row[1], 0)))
 
     for i in range(1, hop_count + 1):
-        next_level = current_level.join(routes_df, current_level["Airport ID"] == routes_df["Source airport ID"]) \
-            .select("Destination airport ID", "Destination airport", "Level") \
-            .withColumnRenamed("Destination airport ID", "Airport ID") \
-            .withColumnRenamed("Destination airport", "City") \
-            .withColumn("Level", lit(i))
+        next_level = current_level.join(routes_rdd).map(lambda row: (row[1][1][1], (row[1][1][2], i)))
+        current_level = current_level.union(next_level).distinct()
 
-        next_level = next_level.join(visited_airports, "Airport ID", "leftanti")
-
-        current_level = current_level.union(next_level)
-
-        visited_airports = visited_airports.union(next_level.select("Airport ID"))
-    
-    intersecting_rows = current_level.select("Airport ID", "Level").join(airports_df, "Airport ID", "left_outer")
-    # intersecting_rows = visited_airports.join(current_level, "Airport ID", "inner").select("City","Level")
+    intersecting_rows = current_level.join(airports_rdd)
     end_time = time.time()
     print(f"Spark find airlines in {hop_count} hops in: {end_time - start_time} seconds\n")
 
-    return intersecting_rows.select("City", "Level").toJSON().map(lambda j: json.loads(j)).collect(), end_time-start_time
+    return intersecting_rows.collect(), end_time-start_time
 
 
 
 
-
-def findTrip(routes_df, source_airport, destination_airport):
-    # BFS
-    visited = set()
-    queue = Queue()
-    start_time = time.time()
-    queue.put((source_airport, []))  # (airport, path_to_airport)
-    while not queue.empty():
-        current_airport, path = queue.get()
-        
-        if current_airport == destination_airport:
-            json_path = [row.asDict() for row in path]
-            end_time = time.time()
-            print(f"Spark found routes in: {end_time - start_time} seconds\n")
-            return json_path
-
-        if current_airport in visited:
-            continue
-        visited.add(current_airport)
-
-        next_routes = routes_df.filter(col("Source airport") == current_airport)
-        for row in next_routes.collect():
-            dest_airport = row["Destination airport"]
-            if dest_airport not in visited:
-                new_path = path + [row]
-                queue.put((dest_airport, new_path))
 
 
 def find_trip(routes_df, source_airport, destination_airport):
@@ -120,14 +87,9 @@ def find_trip(routes_df, source_airport, destination_airport):
 
 
 def convertListToRoutes(routes_df, routes):
-    # routeResults = []
-    # for i in range(len(route) - 1):
-    #     route = routes_df.filter((col("Source Airport") == route[i]) & (col("Destination Airport") == route[i+1])).first()
-    #     routeResults.append(route)
     filter_conditions = [
     (col("Source airport") == routes[i]) & (col("Destination airport") == routes[i + 1])
-    for i in range(len(routes) - 1)
-    ]
+    for i in range(len(routes) - 1)]
 
     combined_condition = filter_conditions[0]
     for condition in filter_conditions[1:]:
@@ -135,10 +97,6 @@ def convertListToRoutes(routes_df, routes):
 
     selected_routes_df = routes_df.filter(combined_condition)
     selected_routes_df = selected_routes_df.dropDuplicates(["Source airport", "Destination airport"])
-    # l = []
-    # for i in routes:
-    #     l.append(selected_routes_df.filter(col("Source Airport") == i))
-    # print(l)
     index_udf = udf(lambda x: routes.index(x), IntegerType())
     selected_routes_df = selected_routes_df.withColumn("index", index_udf(col("Source airport")))
     # selected_routes_df = selected_routes_df.orderBy(keyFunc=lambda x : routes.index(x["Source Airport"]))

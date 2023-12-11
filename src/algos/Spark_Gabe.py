@@ -44,3 +44,31 @@ def find_all_cities_reachable_within_d_hops(airports_df, airlines_df, routes_df)
     intersecting_rows.show()
     end_time = time.time()
     print(f"Spark find airlines in {hop_count} hops in: {end_time - start_time} seconds\n")
+
+
+def find_trip(routes, source_airport, destination_airport):
+    routes_dict = routes.groupBy("Source airport").agg(collect_list("Destination airport").alias("Destinations")).rdd.collectAsMap()
+
+    # BFS
+    visited = set()
+    queue = Queue()
+    start_time = time.time()
+    queue.put((source_airport, []))  # (airport, path_to_airport)
+    while not queue.empty():
+        current_airport, path = queue.get()
+        
+        if current_airport == destination_airport:
+            json_path = [row for row in path]
+            end_time = time.time()
+            print(f"Spark found routes in: {end_time - start_time} seconds\n")
+            return json_path, end_time - start_time
+
+        if current_airport in visited:
+            continue
+        visited.add(current_airport)
+
+        next_routes = routes_dict.get(current_airport, [])
+        for dest_airport in next_routes:
+            if dest_airport not in visited:
+                new_path = path + [dest_airport]
+                queue.put((dest_airport, new_path))
