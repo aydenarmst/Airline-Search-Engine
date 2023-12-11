@@ -2,6 +2,8 @@ import time
 import json
 import sys
 from pyspark.sql.functions import col,lower, udf
+from pyspark.sql.functions import collect_list
+from queue import Queue
 
 def reduceWrapper(airport, routes,hop_count, starting_airports):
     tuple_starting = starting_airports.rdd.map(lambda row: (row['Airport ID'], row['City']))
@@ -36,6 +38,46 @@ def reduceDHopsCities(airports_rdd, routes_rdd, hop_count, starting_airports):
     return intersecting_rows, end_time-start_time
 
 def pathWrapper(routes, source_airport, dest_airport):
-    tuple_routes = routes.rdd.map(lambda row: (row['Source airport ID'], row['Destination airport ID'], row['Destination airport']))
-    
+    tuple_routes = routes.rdd.map(lambda row: (row['Source airport'], row['Destination airport']))
+    for i in tuple_routes.collect():
+        print(i)
+    result,time = find_trip(tuple_routes,source_airport,dest_airport)
+    return result,time
+
+def pathWrapper(routes, source_airport, dest_airport):
+    tuple_routes = routes.rdd.map(lambda row: (row['Source airport'], row['Destination airport']))
+    result,time = find_trip(tuple_routes,source_airport,dest_airport)
+    return result,time
+
+def find_trip(routes_rdd, source_airport, destination_airport):
+    visited = set()
+    queue = Queue()
+    start_time = time.time()
+    queue.put((source_airport, []))  # (airport, path_to_airport)
+    while not queue.empty():
+        current_airport, path = queue.get()
+
+        if current_airport == destination_airport:
+            json_path = [row for row in path]
+            end_time = time.time()
+            print(f"Spark found routes in: {end_time - start_time} seconds\n")
+            return json_path, end_time - start_time
+
+        if current_airport in visited:
+            continue
+        visited.add(current_airport)
+
+        next_routes = routes_rdd.filter(lambda x: x[0] == current_airport)
+        for dest_airport in next_routes.collect():
+            dest_airport = dest_airport[1]
+            if dest_airport not in visited:
+                new_path = path + [dest_airport]
+                queue.put((dest_airport, new_path))
+    return None,None
+
+
+
+
+
+
 

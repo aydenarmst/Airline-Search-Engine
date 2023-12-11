@@ -1,6 +1,6 @@
 
 from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe,find_trip,convertListToRoutes
-from algos.Spark_Map import reduceWrapper
+from algos.Spark_Map import reduceWrapper,pathWrapper
 
 from Ingestion.SparkIngestion import load_data
 from Connector.WriteNeo4j import write_to_Neo4j
@@ -78,7 +78,7 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
             source_airport = data.get("Source Airport")
             dest_airport = data.get("Destination Airport")
             # result = findTrip(routes, source_airport=source_airport, destination_airport=dest_airport )
-            result,time = find_trip(routes, source_airport=source_airport, destination_airport=dest_airport )
+            result,time = pathWrapper(routes, source_airport, dest_airport)
             if result is None:
                 return {}
             result.insert(0, source_airport)
