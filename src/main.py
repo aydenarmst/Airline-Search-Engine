@@ -1,7 +1,6 @@
 
-from algos.Spark_Queries import queryDataframe,findDHopsCities, filterDataframe,find_trip,convertListToRoutes
+from algos.Spark_Queries import queryDataframe, filterDataframe,convertListToRoutes
 from algos.Spark_Map import reduceWrapper,pathWrapper
-
 from Ingestion.SparkIngestion import load_data
 from Connector.WriteNeo4j import write_to_Neo4j
 from Connector.ReadNeo4j import read_from_Neo4j
@@ -14,10 +13,6 @@ import json
 import sys
 
 
-# # Neo4j credentials
-# new_uri = "neo4j+s://cdc70305.databases.neo4j.io:7687"
-# new_password = "2X4BWHyxDb7UGepmAfed1LfAUqw6hX1OV1mP-KIyisI"
-# username = "neo4j"
 
 # sets the jar from maven repo for neo4j-connector-apache-spark
 spark = (SparkSession.builder 
@@ -38,8 +33,9 @@ use_reduced_data = False
 # Read from neo4j into DFs
 airport, airlines, routes = read_from_Neo4j(spark)
 
-# Initialize the driver to connect to Neo4j AuraDB
+# Initialize the driver to connect to Neo4j for queries
 # driver = GraphDatabase.driver(new_uri, auth=(username, new_password))
+
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
@@ -77,7 +73,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         elif(data["function"] == "findTrip"):
             source_airport = data.get("Source Airport")
             dest_airport = data.get("Destination Airport")
-            # result = findTrip(routes, source_airport=source_airport, destination_airport=dest_airport )
             result,time = pathWrapper(routes, source_airport, dest_airport)
             if result is None:
                 return {}

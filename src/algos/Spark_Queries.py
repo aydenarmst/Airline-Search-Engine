@@ -34,57 +34,6 @@ def filterRDD(rdd, conditions):
     rdd = rdd.map(lambda x : (x,1))
     return rdd
 
-def findDHopsCities(airports_rdd, routes_rdd, hop_count, starting_airports):
-    if hop_count < 1:
-        print("Invalid Hop Count")
-        return
-    start_time = time.time()
-
-    current_level = starting_airports.map(lambda row: (row[0], (row[1], 0)))
-
-    for i in range(1, hop_count + 1):
-        next_level = current_level.join(routes_rdd).map(lambda row: (row[1][1][1], (row[1][1][2], i)))
-        current_level = current_level.union(next_level).distinct()
-
-    intersecting_rows = current_level.join(airports_rdd)
-    end_time = time.time()
-    print(f"Spark find airlines in {hop_count} hops in: {end_time - start_time} seconds\n")
-
-    return intersecting_rows.collect(), end_time-start_time
-
-
-
-
-
-
-def find_trip(routes_df, source_airport, destination_airport):
-    routes_dict = routes_df.groupBy("Source airport").agg(collect_list("Destination airport").alias("Destinations")).rdd.collectAsMap()
-
-    # BFS
-    visited = set()
-    queue = Queue()
-    start_time = time.time()
-    queue.put((source_airport, []))  # (airport, path_to_airport)
-    while not queue.empty():
-        current_airport, path = queue.get()
-        
-        if current_airport == destination_airport:
-            json_path = [row for row in path]
-            end_time = time.time()
-            print(f"Spark found routes in: {end_time - start_time} seconds\n")
-            return json_path, end_time - start_time
-
-        if current_airport in visited:
-            continue
-        visited.add(current_airport)
-
-        next_routes = routes_dict.get(current_airport, [])
-        for dest_airport in next_routes:
-            if dest_airport not in visited:
-                new_path = path + [dest_airport]
-                queue.put((dest_airport, new_path))
-
-
 
 def convertListToRoutes(routes_df, routes):
     filter_conditions = [
@@ -104,19 +53,23 @@ def convertListToRoutes(routes_df, routes):
     selected_routes_df = selected_routes_df.drop("index")
     return selected_routes_df.toJSON().map(lambda j: json.loads(j)).collect()
 
-def country_most_airports(airports_df):
-    start_time = time.time()
-    airports_in_country = (airports_df.groupBy(airports_df.schema.names[3]).count()).orderBy(col("count").desc())
-    airports_in_country.limit(1).show()
-    end_time = time.time()
-    print(f"Spark algorithm took: {end_time - start_time} seconds\n")
 
 
-def find_airports_within_country(airports_df, country):
-    country = country.lower()
-    start_time = time.time()
-    airports_in_country = airports_df.filter(lower(airports_df["Country"]) == country)
-    end_time = time.time()
-    print(f"Airport count: {airports_in_country.count()}")
-    print(f"Spark find airports within country took: {end_time - start_time} seconds\n")
-    return airports_in_country.toJSON().map(lambda j: json.loads(j)).collect()
+# Original algorithms, deprecated since the filterRDD and filterDataframe
+
+# def country_most_airports(airports_df):
+#     start_time = time.time()
+#     airports_in_country = (airports_df.groupBy(airports_df.schema.names[3]).count()).orderBy(col("count").desc())
+#     airports_in_country.limit(1).show()
+#     end_time = time.time()
+#     print(f"Spark algorithm took: {end_time - start_time} seconds\n")
+
+
+# def find_airports_within_country(airports_df, country):
+#     country = country.lower()
+#     start_time = time.time()
+#     airports_in_country = airports_df.filter(lower(airports_df["Country"]) == country)
+#     end_time = time.time()
+#     print(f"Airport count: {airports_in_country.count()}")
+#     print(f"Spark find airports within country took: {end_time - start_time} seconds\n")
+#     return airports_in_country.toJSON().map(lambda j: json.loads(j)).collect()

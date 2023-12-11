@@ -4,6 +4,7 @@ import sys
 from pyspark.sql.functions import col,lower, udf
 from pyspark.sql.functions import collect_list
 from queue import Queue
+from pyspark import SparkContext
 
 def reduceWrapper(airport, routes,hop_count, starting_airports):
     tuple_starting = starting_airports.rdd.map(lambda row: (row['Airport ID'], row['City']))
@@ -37,19 +38,23 @@ def reduceDHopsCities(airports_rdd, routes_rdd, hop_count, starting_airports):
     # return intersecting_rows, end_time-start_time
     return intersecting_rows, end_time-start_time
 
-def pathWrapper(routes, source_airport, dest_airport):
-    tuple_routes = routes.rdd.map(lambda row: (row['Source airport'], row['Destination airport']))
-    for i in tuple_routes.collect():
-        print(i)
-    result,time = find_trip(tuple_routes,source_airport,dest_airport)
-    return result,time
 
 def pathWrapper(routes, source_airport, dest_airport):
+    sc = SparkContext.getOrCreate()
+
+    # map
     tuple_routes = routes.rdd.map(lambda row: (row['Source airport'], row['Destination airport']))
-    result,time = find_trip(tuple_routes,source_airport,dest_airport)
+
+    #reduce
+    grouped_routes = tuple_routes.groupByKey().mapValues(list)
+
+    # collect and broadcast across nodes
+    routes_map = sc.broadcast(grouped_routes.collectAsMap())
+
+    result,time = find_trip(routes_map,source_airport,dest_airport)
     return result,time
 
-def find_trip(routes_rdd, source_airport, destination_airport):
+def find_trip(broadcasted_route_map, source_airport, destination_airport):
     visited = set()
     queue = Queue()
     start_time = time.time()
@@ -67,17 +72,9 @@ def find_trip(routes_rdd, source_airport, destination_airport):
             continue
         visited.add(current_airport)
 
-        next_routes = routes_rdd.filter(lambda x: x[0] == current_airport)
-        for dest_airport in next_routes.collect():
-            dest_airport = dest_airport[1]
+        next_routes = broadcasted_route_map.value.get(current_airport, [])
+        for dest_airport in next_routes:
             if dest_airport not in visited:
                 new_path = path + [dest_airport]
                 queue.put((dest_airport, new_path))
     return None,None
-
-
-
-
-
-
-
